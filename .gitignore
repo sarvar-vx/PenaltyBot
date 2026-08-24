@@ -1,0 +1,26 @@
+# Muhit va sirlar
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Docker
+*.log
+
+# IDE
+.idea/
+.vscode/
+
+# Vaqtinchalik fayllar
+*.sql
+/tmp/
+
+# OS
+.DS_Store
