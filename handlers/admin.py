@@ -182,9 +182,9 @@ async def add_channel_finish(message: Message, state: FSMContext, bot: Bot):
 
     try:
         chat = await bot.get_chat(username)
-    except (TelegramBadRequest, TelegramForbiddenError) as e:
+    except (TelegramBadRequest, TelegramForbiddenError):
         await message.answer(
-            f"❌ Kanalni topib bo'lmadi yoki bot u yerda admin emas.\n\nQaytadan urinib ko'ring:",
+            "❌ Kanalni topib bo'lmadi yoki bot u yerda admin emas.\n\nQaytadan urinib ko'ring:",
             reply_markup=get_cancel_inline()
         )
         return

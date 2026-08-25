@@ -1,8 +1,12 @@
+import logging
+
 from sqlalchemy import select, delete, or_, func, case
 from sqlalchemy.exc import IntegrityError
 
 from database.engine import async_session
 from database.models import User, GameStat, Channel, Admin
+
+logger = logging.getLogger(__name__)
 
 
 # ==================== FOYDALANUVCHILAR ====================
@@ -44,9 +48,9 @@ async def update_game_stats(
     O'yin natijasini bazaga saqlaydi va users jadvalidagi wins/losses/total_games
     ustunlarini yangilaydi.
 
-    Xavfsizlik: agar biror sababdan (masalan /start paytidagi vaqtinchalik DB
-    xatosi) foydalanuvchi 'users' jadvalida topilmasa, FOREIGN KEY xatosiga
-    yo'l qo'ymaslik uchun uni shu yerning o'zida avtomatik yaratib qo'yamiz.
+    Xavfsizlik: agar biror sababdan foydalanuvchi 'users' jadvalida topilmasa,
+    FOREIGN KEY xatosiga yo'l qo'ymaslik uchun uni shu yerning o'zida
+    avtomatik yaratib qo'yamiz.
     """
     async with async_session() as session:
         stmt = select(User).where(User.user_id.in_([p1_id, p2_id]))
@@ -79,18 +83,13 @@ async def update_game_stats(
 
 
 async def get_user_stats(user_id: int) -> dict:
-    """Foydalanuvchining o'yinlar soni, g'alaba, durang va mag'lubiyatlarini hisoblaydi"""
+    """Foydalanuvchining o'yinlar soni, g'alaba va mag'lubiyatlarini hisoblaydi"""
     async with async_session() as session:
         stmt = select(
             func.count(GameStat.id).label("total"),
             func.coalesce(func.sum(case((GameStat.winner_id == user_id, 1), else_=0)), 0).label("wins"),
             func.coalesce(func.sum(case(
-                ((GameStat.winner_id.is_(None)) & ((GameStat.p1_id == user_id) | (GameStat.p2_id == user_id)), 1),
-                else_=0
-            )), 0).label("draws"),
-            func.coalesce(func.sum(case(
-                ((GameStat.winner_id.is_not(None)) & (GameStat.winner_id != user_id) &
-                 ((GameStat.p1_id == user_id) | (GameStat.p2_id == user_id)), 1),
+                ((GameStat.winner_id != user_id) & ((GameStat.p1_id == user_id) | (GameStat.p2_id == user_id)), 1),
                 else_=0
             )), 0).label("losses")
         ).where(
@@ -101,7 +100,6 @@ async def get_user_stats(user_id: int) -> dict:
         return {
             "total": row.total or 0,
             "wins": row.wins,
-            "draws": row.draws,
             "losses": row.losses
         }
 

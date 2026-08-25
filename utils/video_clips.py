@@ -19,7 +19,7 @@ VIDEO_MESSAGE_IDS = {
     "center_right": 9,
     "right_left": 4,
     "right_center": 7,
-    "right_right": 9,
+    "right_right": 10,
 }
 
 

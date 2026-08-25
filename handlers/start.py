@@ -156,6 +156,7 @@ async def start_matchmaking(message: Message):
             except TelegramAPIError:
                 pass
 
+
 @router.callback_query(F.data == "cancel_search")
 async def cancel_search_handler(call: CallbackQuery):
     user_id = call.from_user.id
@@ -172,9 +173,9 @@ async def cancel_search_handler(call: CallbackQuery):
             reply_markup=get_main_reply_keyboard()
         )
     else:
-        # Bu holat endi kamroq uchraydi (yuqoridagi tuzatish tufayli), lekin
-        # baribir xavfsizlik uchun qoldiramiz: agar match allaqachon topilgan
-        # bo'lsa, foydalanuvchi shuni bilishi kerak.
+        # Bu holat endi kamroq uchraydi, lekin baribir xavfsizlik uchun
+        # qoldiramiz: agar match allaqachon topilgan bo'lsa, foydalanuvchi
+        # shuni bilishi kerak.
         await call.answer("Siz allaqachon navbatda emassiz yoki match boshlanib bo'lgan!", show_alert=True)
         try:
             await call.message.delete()
