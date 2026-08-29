@@ -6,8 +6,7 @@ import logging
 from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import (
-    Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton,
-    ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
+    Message, CallbackQuery, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 )
 from aiogram.exceptions import TelegramBadRequest, TelegramAPIError, TelegramForbiddenError
 
@@ -16,17 +15,11 @@ from utils.game_logic import (
     MATCHMAKING_QUEUE, ACTIVE_GAMES, GameSession, QUEUE_LOCK,
     is_user_in_game, is_user_in_queue, remove_user_from_queue
 )
+from utils.keyboards import get_main_reply_keyboard
 from handlers.game import get_shot_keyboard, start_turn_timer
 
 router = Router()
 logger = logging.getLogger(__name__)
-
-
-def get_main_reply_keyboard() -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="🎮 O'yinni boshlash")]],
-        resize_keyboard=True
-    )
 
 
 def get_cancel_queue_keyboard() -> InlineKeyboardMarkup:

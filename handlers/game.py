@@ -4,14 +4,14 @@ import logging
 
 from aiogram import Router, F
 from aiogram.types import (
-    CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton,
-    ReplyKeyboardMarkup, KeyboardButton
+    CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 )
 from aiogram.exceptions import TelegramBadRequest, TelegramAPIError
 
 from config import VIDEO_CHANNEL_ID
 from utils.game_logic import ACTIVE_GAMES, GameSession, finish_and_clean_game
 from utils.video_clips import get_result_message_id
+from utils.keyboards import get_main_reply_keyboard
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -34,10 +34,6 @@ def get_ready_keyboard(game_id: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="➡️ Keyingi raundga tayyorman", callback_data=f"ready_{game_id}")]
     ])
-
-
-def get_main_reply_keyboard() -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="🎮 O'yinni boshlash")]], resize_keyboard=True)
 
 
 def build_scoreboard(game: GameSession) -> str:

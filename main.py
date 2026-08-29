@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 from config import BOT_TOKEN, OWNER_ID, LOGS_CHANNEL_ID, BACKUP_CHANNEL_ID
 from database.engine import init_db, close_db
 from database.requests import ensure_owner_exists
-from handlers import start, game, admin
+from handlers import reset, admin, start, game
 from middlewares.registration import UserRegistrationMiddleware
 from middlewares.subscription import SubscriptionMiddleware
 from utils.telegram_logger import TelegramLogHandler, telegram_log_sender
@@ -42,6 +42,8 @@ async def main():
     dp.message.middleware(subscription_mw)
     dp.callback_query.middleware(subscription_mw)
 
+    # Reset router ENG BIRINCHI — har qanday FSM holatidan qat'iy nazar ishlashi kerak
+    dp.include_router(reset.router)
     dp.include_router(admin.router)
     dp.include_router(start.router)
     dp.include_router(game.router)

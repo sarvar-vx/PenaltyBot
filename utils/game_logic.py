@@ -2,7 +2,6 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from typing import Dict, Optional, List
-
 from database.requests import update_game_stats
 
 logger = logging.getLogger(__name__)
@@ -68,10 +67,9 @@ def is_user_in_queue(user_id: int) -> bool:
 
 async def remove_user_from_queue(user_id: int) -> bool:
     """O'yinchi qidiruvni bekor qilsa, uni navbatdan xavfsiz o'chirish"""
-    global MATCHMAKING_QUEUE
     async with QUEUE_LOCK:
         initial_len = len(MATCHMAKING_QUEUE)
-        MATCHMAKING_QUEUE = [p for p in MATCHMAKING_QUEUE if p["id"] != user_id]
+        MATCHMAKING_QUEUE[:] = [p for p in MATCHMAKING_QUEUE if p["id"] != user_id]
         return len(MATCHMAKING_QUEUE) < initial_len
 
 
@@ -89,7 +87,6 @@ async def finish_and_clean_game(
 ) -> None:
     """
     O'yin tugagach timer'ni bekor qilish va xotiradan (ACTIVE_GAMES) to'liq o'chirish.
-
     winner_id: g'olib ID'si (statistikaga yozish uchun).
     p1_name, p2_name: agar foydalanuvchi 'users' jadvalida topilmasa, uni
     yaratishda ishlatiladigan ism (xavfsizlik uchun).
@@ -98,7 +95,6 @@ async def finish_and_clean_game(
     if game:
         if game.timer_task and not game.timer_task.done():
             game.timer_task.cancel()
-
         if save_to_db:
             try:
                 await update_game_stats(
@@ -112,5 +108,4 @@ async def finish_and_clean_game(
                 )
             except Exception:
                 logger.exception(f"Game stats save error [game_id={game_id}]")
-
         ACTIVE_GAMES.pop(game_id, None)
