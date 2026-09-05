@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 from config import BOT_TOKEN, OWNER_ID, LOGS_CHANNEL_ID, BACKUP_CHANNEL_ID
 from database.engine import init_db, close_db
 from database.requests import ensure_owner_exists
-from handlers import reset, admin, start, game
+from handlers import reset, admin, friend, start, game
 from middlewares.registration import UserRegistrationMiddleware
 from middlewares.subscription import SubscriptionMiddleware
 from utils.telegram_logger import TelegramLogHandler, telegram_log_sender
@@ -19,9 +19,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# aiogram'ning har bir update uchun chiqaradigan "Update id=... handled" shovqinini
-# kamaytiramiz — bu xabarlar Telegram log kanalini keraksiz to'ldirib yuboradi.
-# Bizning o'z logger'larimiz (game.py, admin.py va h.k.) INFO darajasida qolaveradi.
 logging.getLogger("aiogram.event").setLevel(logging.WARNING)
 
 
@@ -32,12 +29,10 @@ async def main():
     )
     dp = Dispatcher()
 
-    # 1. Har bir foydalanuvchini avtomatik ro'yxatdan o'tkazish
     registration_mw = UserRegistrationMiddleware()
     dp.message.middleware(registration_mw)
     dp.callback_query.middleware(registration_mw)
 
-    # 2. Majburiy obuna tekshiruvi
     subscription_mw = SubscriptionMiddleware()
     dp.message.middleware(subscription_mw)
     dp.callback_query.middleware(subscription_mw)
@@ -45,6 +40,7 @@ async def main():
     # Reset router ENG BIRINCHI — har qanday FSM holatidan qat'iy nazar ishlashi kerak
     dp.include_router(reset.router)
     dp.include_router(admin.router)
+    dp.include_router(friend.router)
     dp.include_router(start.router)
     dp.include_router(game.router)
 
@@ -56,7 +52,6 @@ async def main():
         logger.exception("Bazaga ulanishda xatolik yuz berdi, bot to'xtatilmoqda.")
         return
 
-    # Loglarni Telegram kanaliga yuborish (agar sozlangan bo'lsa)
     log_sender_task = None
     if LOGS_CHANNEL_ID:
         tg_handler = TelegramLogHandler()
@@ -67,7 +62,6 @@ async def main():
     else:
         logger.warning("LOGS_CHANNEL_ID sozlanmagan — loglar faqat konsolga chiqadi.")
 
-    # Kunlik avtomatik backup (agar sozlangan bo'lsa)
     backup_task = None
     if BACKUP_CHANNEL_ID:
         backup_task = asyncio.create_task(backup_scheduler(bot))

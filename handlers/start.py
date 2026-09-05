@@ -15,6 +15,7 @@ from utils.game_logic import (
     MATCHMAKING_QUEUE, ACTIVE_GAMES, GameSession, QUEUE_LOCK,
     is_user_in_game, is_user_in_queue, remove_user_from_queue
 )
+from utils.friend_invite import is_user_busy
 from utils.keyboards import get_main_reply_keyboard
 from handlers.game import get_shot_keyboard, start_turn_timer
 
@@ -76,6 +77,10 @@ async def start_matchmaking(message: Message):
 
     if is_user_in_game(user_id):
         await message.answer("⚠️ Siz allaqachon davom etayotgan o'yindasiz!")
+        return
+
+    if is_user_busy(user_id):
+        await message.answer("⚠️ Sizda faol sherik taklifi bor. Avval uni yakunlang yoki 🔄 Qayta tiklash bosing.")
         return
 
     matched_pair = None
@@ -166,9 +171,6 @@ async def cancel_search_handler(call: CallbackQuery):
             reply_markup=get_main_reply_keyboard()
         )
     else:
-        # Bu holat endi kamroq uchraydi, lekin baribir xavfsizlik uchun
-        # qoldiramiz: agar match allaqachon topilgan bo'lsa, foydalanuvchi
-        # shuni bilishi kerak.
         await call.answer("Siz allaqachon navbatda emassiz yoki match boshlanib bo'lgan!", show_alert=True)
         try:
             await call.message.delete()

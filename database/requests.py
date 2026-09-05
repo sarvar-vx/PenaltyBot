@@ -38,6 +38,21 @@ async def register_user(user_id: int, full_name: str, username: str = None):
                 await session.commit()
 
 
+async def get_user_by_identifier(identifier: str) -> User | None:
+    """
+    Foydalanuvchini username (@ belgisisiz) yoki raqamli Telegram ID orqali
+    topadi. Faqat botga kamida bir marta /start bosgan (users jadvalida
+    ro'yxatdan o'tgan) foydalanuvchilar topiladi.
+    """
+    async with async_session() as session:
+        if identifier.isdigit():
+            stmt = select(User).where(User.user_id == int(identifier))
+        else:
+            stmt = select(User).where(User.username == identifier)
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
+
 # ==================== O'YIN STATISTIKASI ====================
 
 async def update_game_stats(

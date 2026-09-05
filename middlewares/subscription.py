@@ -8,11 +8,13 @@ from database.requests import get_channels, is_admin
 
 logger = logging.getLogger(__name__)
 
-# Bular tekshiruvsiz har doim o'tadi
 EXEMPT_COMMANDS = {"/start", "/reset", f"/{ADMIN_ENTRY_COMMAND}", f"/{OWNER_ENTRY_COMMAND}"}
-EXEMPT_TEXTS = {"🔄 Qayta tiklash"}  # Favqulodda chiqish tugmasi — obuna tekshiruvidan ham ozod
+EXEMPT_TEXTS = {"🔄 Qayta tiklash"}
 
-EXEMPT_CALLBACK_PREFIXES = ("check_subscription", "cancel_search", "move_", "ready_")
+EXEMPT_CALLBACK_PREFIXES = (
+    "check_subscription", "cancel_search", "move_", "ready_",
+    "friend_accept_", "friend_decline_", "friend_cancel_invite",
+)
 
 
 class SubscriptionMiddleware(BaseMiddleware):
